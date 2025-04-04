@@ -32,9 +32,9 @@ bool variance(const vector<vector<RGB>>& image, int x, int y, int width, int hei
     varG /= totalPixels;
     varB /= totalPixels;
 
-    // Compute overall RGB variance
-    float varRGB = (varR + varG + varB) / 3;
-    return varRGB <= threshold;
+    // Compute mean of overall RGB variance
+    float meanVarRGB = (varR + varG + varB) / 3;
+    return meanVarRGB <= threshold;
 }
 
 bool mad(const vector<vector<RGB>>& image, int x, int y, int width, int height, float threshold, RGB &mean) {
@@ -77,6 +77,9 @@ bool mad(const vector<vector<RGB>>& image, int x, int y, int width, int height, 
 
 // TODO: Implement the entropy function
 
+// Ini nanti selama rekursi pakai ini aja langsung
+// Langsung masukin tipe error dan thresholdnya
+// Warna yang mewakili (mean) juga pass by reference and langsung keisi
 bool errorValidation(const string &errorMethod, const vector<vector<RGB>>& image, int x, int y, int width, int height, float threshold, RGB &mean) {
     if (errorMethod == "variance") {
         return variance(image, x, y, width, height, threshold, mean);
