@@ -1,9 +1,21 @@
 #include "QuadTree.hpp"
-#include <iostream>
-#include <vector>
-#include <cmath>
 
-QuadTreeNode::QuadTreeNode(): x(0), y(0), width(0), height(0), isLeaf(true),
-                              topLeft(nullptr), topRight(nullptr),bottomLeft(nullptr), bottomRight(nullptr) {}
+QuadTree::QuadTree() : root(nullptr), maxDepth(0), nodeCount(0) {}
 
-// TODO: Implement the buildQuadtree function
+QuadTree::~QuadTree() {
+    destroyTree(root);
+}
+
+void QuadTree::destroyTree(QuadTreeNode* node) {
+    if (node == nullptr) return;
+
+    // Rekursif hapus semua anak
+    destroyTree(node->topLeft);
+    destroyTree(node->topRight);
+    destroyTree(node->bottomLeft);
+    destroyTree(node->bottomRight);
+
+    delete node;
+}
+
+// TODO: Implement the buildTree function

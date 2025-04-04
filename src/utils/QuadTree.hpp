@@ -1,29 +1,20 @@
 #ifndef QUADTREE_HPP
 #define QUADTREE_HPP
 
-#include <iostream>
 #include <vector>
-#include "RGB.hpp"
-#include "ErrorMeasures.hpp"
+#include "QuadTreeNode.hpp"
 
-struct QuadTreeNode {
-    // Pointer ke anak
-    QuadTreeNode* topLeft;
-    QuadTreeNode* topRight;
-    QuadTreeNode* bottomLeft;
-    QuadTreeNode* bottomRight;
+class QuadTree {
+public:
+    QuadTreeNode* root;
+    int maxDepth;   // Kedalaman maksimum pohon
+    int nodeCount;  // Jumlah simpul dalam quadtree
 
-    // Properti simpul
-    int x, y, width, height;
-    bool isLeaf;
+    QuadTree();
+    ~QuadTree();
 
-    // Constructor (hanya deklarasi di sini)
-    QuadTreeNode();
-
-    // Ini yang rekursif yaw
-    void buildQuadtree(QuadTreeNode*& node, const vector<vector<RGB>>& image, int x, int y, int width, int height, float threshold);
+    void buildTree(const std::vector<std::vector<RGB>>& image, float threshold);
+    void destroyTree(QuadTreeNode* node);
 };
-
-
 
 #endif
