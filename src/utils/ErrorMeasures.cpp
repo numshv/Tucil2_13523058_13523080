@@ -74,8 +74,13 @@ bool mad(const vector<vector<RGB>>& image, int x, int y, int width, int height, 
 }
 
 // TODO: Implement the max pixel difference (MPD) function
-
+bool mpd(const vector<vector<RGB>>& image, int x, int y, int width, int height, float threshold, RGB &mean){
+    return true;
+} 
 // TODO: Implement the entropy function
+bool entropy(const vector<vector<RGB>>& image, int x, int y, int width, int height, float threshold, RGB &mean){
+    return true;
+}
 
 // Ini nanti selama rekursi pakai ini aja langsung
 // Langsung masukin tipe error dan thresholdnya
