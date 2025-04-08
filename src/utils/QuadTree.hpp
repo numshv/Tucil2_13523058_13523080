@@ -14,7 +14,7 @@ public:
     QuadTree();
     ~QuadTree();
 
-    void buildTree(const std::vector<std::vector<RGB>>& image, float threshold, const std::string& errorMethod);
+    void buildTree(const std::vector<std::vector<RGB>>& image, float threshold, const std::string& errorMethod, int minBlockSize);
     void destroyTree(QuadTreeNode* node);
 
     // ini baru, buat simpan gambarnya supaya ngga besar
