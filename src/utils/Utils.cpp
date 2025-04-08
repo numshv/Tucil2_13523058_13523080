@@ -9,7 +9,6 @@ using namespace std;
 // Function to check if a file exists
 bool fileExists(const string &filename) {
     ifstream file(filename);
-    cout << "[DEBUG] Checking file existence: " << filename << " => " << (file.good() ? "exists" : "not found") << endl;
     return file.good();
 }
 
@@ -190,7 +189,7 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
         if (ss >> targetCompression && targetCompression >= 0.0f && targetCompression <= 1.0f) break;
         cout << "\nInvalid input. Please enter a float between 0 and 1.\n\n";
     }
-    cout << endl;
+    cout << endl << endl << endl;
 
     // Load and process image into 2D vector
     if (!processImage(inputImagePath, image)) {
@@ -236,7 +235,7 @@ void outputHandler(const string &outputImagePath, const string &inputImagePath, 
     cout << "Input image size: " << getFileSize(inputImagePath) / 1024 << " KB" << endl;
     cout << "Output image size: " << getFileSize(outputImagePath) / 1024 << " KB" << endl;
     cout << "Compression ratio: " << (float)getFileSize(outputImagePath) / getFileSize(inputImagePath) * 100 << "%" << endl;
-    cout << "Max depth of quadtree: " << quadtree.maxDepth << endl << endl;
-    cout << "Total nodes in quadtree: " << quadtree.nodeCount << endl;
+    cout << "Max depth of quadtree: " << quadtree.maxDepth << endl;
+    cout << "Total nodes in quadtree: " << quadtree.nodeCount << endl << endl;
     cout << "=========================\n";
 }
