@@ -172,9 +172,8 @@ bool entropy(const vector<vector<RGB>>& image, int x, int y, int width, int heig
     }
     
     float avgEntropy = (entropyR + entropyG + entropyB) / 3.0f;
-    
-    // Return true if entropy is above threshold
-    return avgEntropy > threshold;
+
+    return avgEntropy <= threshold;
 }
 
 // Ini nanti selama rekursi pakai ini aja langsung
