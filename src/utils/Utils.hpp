@@ -11,13 +11,15 @@
 
 using namespace std;
 
-// Function declarations
 bool fileExists(const string &filename);
+bool hasValidExtension(const string& filename);
+string trim(const string &s);
+string getNonEmptyLine(const string &prompt);
 bool processImage(const string &imagePath, vector<vector<RGB>> &image);
-bool errorValidation(const string &errorMethod);
+bool isValidErrorMethod(const string &errorMethod);
+bool isValidThreshold(const string &errorMethod, float threshold);
 void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &errorMethod,
                   float &threshold, int &minBlockSize, float &targetCompression, string &outputImagePath);
 void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::string& outputImagePath);
-// void saveModifiedImage(const vector<vector<RGB>>& image, const string& outputImagePath);
 
-#endif // UTILS_H
+#endif
