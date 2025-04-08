@@ -119,32 +119,62 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
     }
 }
 
-void saveModifiedImage(const vector<vector<RGB>>& image, const string& outputImagePath) {
+// void saveModifiedImage(const vector<vector<RGB>>& image, const string& outputImagePath) {
+//     if (image.empty() || image[0].empty()) {
+//         cerr << "Error: Empty image data. Cannot save.\n";
+//         return;
+//     }
+
+//     int height = image.size();
+//     int width = image[0].size();
+
+//     // Create a flat buffer for image data (RGB format)
+//     vector<uint8_t> data(height * width * 3);
+
+//     for (int i = 0; i < height; ++i) {
+//         for (int j = 0; j < width; ++j) {
+//             const RGB& pixel = image[i][j];
+//             int index = (i * width + j) * 3;
+//             data[index + 0] = min(pixel.r + 50, 255); // R
+//             data[index + 1] = min(pixel.g + 50, 255); // G
+//             data[index + 2] = min(pixel.b + 50, 255); // B
+//         }
+//     }
+
+//     // Write image as PNG
+//     if (!stbi_write_png(outputImagePath.c_str(), width, height, 3, data.data(), width * 3)) {
+//         cerr << "Failed to write image to: " << outputImagePath << endl;
+//     } else {
+//         cout << "Image successfully saved to: " << outputImagePath << endl;
+//     }
+// }
+
+void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::string& outputImagePath) {
     if (image.empty() || image[0].empty()) {
-        cerr << "Error: Empty image data. Cannot save.\n";
+        std::cerr << "Error: Empty image data. Cannot save.\n";
         return;
     }
 
-    int height = image.size();
-    int width = image[0].size();
+    const int height = image.size();
+    const int width = image[0].size();
 
     // Create a flat buffer for image data (RGB format)
-    vector<uint8_t> data(height * width * 3);
+    std::vector<uint8_t> data(height * width * 3);
 
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             const RGB& pixel = image[i][j];
             int index = (i * width + j) * 3;
-            data[index + 0] = min(pixel.r + 50, 255); // R
-            data[index + 1] = min(pixel.g + 50, 255); // G
-            data[index + 2] = min(pixel.b + 50, 255); // B
+            data[index + 0] = pixel.r; // R
+            data[index + 1] = pixel.g; // G
+            data[index + 2] = pixel.b; // B
         }
     }
 
     // Write image as PNG
     if (!stbi_write_png(outputImagePath.c_str(), width, height, 3, data.data(), width * 3)) {
-        cerr << "Failed to write image to: " << outputImagePath << endl;
+        std::cerr << "Failed to write image to: " << outputImagePath << std::endl;
     } else {
-        cout << "Image successfully saved to: " << outputImagePath << endl;
+        std::cout << "Compressed image saved to: " << outputImagePath << std::endl;
     }
 }

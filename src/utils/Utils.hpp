@@ -17,6 +17,7 @@ bool processImage(const string &imagePath, vector<vector<RGB>> &image);
 bool errorValidation(const string &errorMethod);
 void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &errorMethod,
                   float &threshold, int &minBlockSize, float &targetCompression, string &outputImagePath);
-void saveModifiedImage(const vector<vector<RGB>>& image, const string& outputImagePath);
+void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::string& outputImagePath);
+// void saveModifiedImage(const vector<vector<RGB>>& image, const string& outputImagePath);
 
 #endif // UTILS_H
