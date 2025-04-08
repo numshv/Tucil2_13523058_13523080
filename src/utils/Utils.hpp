@@ -1,13 +1,9 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <algorithm>
-#include <cstdint>
+#include <bits/stdc++.h>
 #include "RGB.hpp"
+#include "QuadTree.hpp"
 
 using namespace std;
 
@@ -18,8 +14,10 @@ string getNonEmptyLine(const string &prompt);
 bool processImage(const string &imagePath, vector<vector<RGB>> &image);
 bool isValidErrorMethod(const string &errorMethod);
 bool isValidThreshold(const string &errorMethod, float threshold);
+long long getFileSize(const std::string& path);
 void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &errorMethod,
                   float &threshold, int &minBlockSize, float &targetCompression, string &outputImagePath);
 void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::string& outputImagePath);
+void outputHandler(const string &outputImagePath, const string &inputImagePath, QuadTree &quadtree, std::chrono::milliseconds duration);
 
 #endif

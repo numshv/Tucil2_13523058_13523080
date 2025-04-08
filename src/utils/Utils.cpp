@@ -94,6 +94,12 @@ bool isValidThreshold(const string &errorMethod, float threshold) {
     }
 }
 
+long long getFileSize(const std::string& path) {
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    if (!file) return -1; // Error opening file
+    return file.tellg();  // Returns size in bytes
+}
+
 // Function to handle input and process the image
 void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &errorMethod,
                   float &threshold, int &minBlockSize, float &targetCompression, string &outputImagePath) {
@@ -221,4 +227,16 @@ void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::
     } else {
         std::cout << "Compressed image saved to: " << outputImagePath << std::endl;
     }
+}
+
+void outputHandler(const string &outputImagePath, const string &inputImagePath, QuadTree &quadtree, std::chrono::milliseconds duration){
+    cout << "\n\n=========================\n" << endl;
+    cout << "Output image successfully rendered to: " << outputImagePath << endl;
+    cout << "Compression execution duration: " << duration.count() << " ms" << endl;
+    cout << "Input image size: " << getFileSize(inputImagePath) / 1024 << " KB" << endl;
+    cout << "Output image size: " << getFileSize(outputImagePath) / 1024 << " KB" << endl;
+    cout << "Compression ratio: " << (float)getFileSize(outputImagePath) / getFileSize(inputImagePath) * 100 << "%" << endl;
+    cout << "Max depth of quadtree: " << quadtree.maxDepth << endl << endl;
+    cout << "Total nodes in quadtree: " << quadtree.nodeCount << endl;
+    cout << "=========================\n";
 }

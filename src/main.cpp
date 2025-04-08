@@ -13,9 +13,10 @@ int main(){
     // Handle input and process the image
     inputHandler(inputImagePath, image, errorMethod, threshold, minBlockSize, targetCompression, outputImagePath);
 
+    // Start menghitung waktu eksekusi
     auto start = chrono::high_resolution_clock::now();
 
-    //TODO: Implement rekursi di sini
+    //Implementasi rekursi di sini
     QuadTree qt;
     qt.nodeCount = 0;
     qt.maxDepth = 0;
@@ -26,14 +27,14 @@ int main(){
     std::vector<std::vector<RGB>> compressedImage = image;
     qt.reconstructImage(compressedImage);
 
+    // Rekursi selesai
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
-    // cout << "Execution time: " << duration.count() << " ms" << endl;
 
     // Just to test if it's possible to modify and save it to a new file
     saveCompressedImage(compressedImage, outputImagePath);
 
-    //TODO: output handler
+    outputHandler(outputImagePath, inputImagePath, qt, duration);
 
     return 0;
 }
