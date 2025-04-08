@@ -9,47 +9,52 @@ QuadTreeNode::QuadTreeNode()
 
 // TODO: Implement the buildNode function
 void QuadTreeNode::buildNode(QuadTreeNode*& node, const std::vector<std::vector<RGB>>& image,
-  int x, int y, int width, int height, float threshold,
-  int& maxDepth, int& nodeCount, const std::string& errorMethod)
-  {
-      if (!node) return;
+    int x, int y, int width, int height, float threshold,
+    int currentDepth, int& maxDepth, int& nodeCount, const std::string& errorMethod, int minBlockSize)
+{
+    if (!node) return;
 
-      node->x = x;
-      node->y = y;
-      node->width = width;
-      node->height = height;
+    node->x = x;
+    node->y = y;
+    node->width = width;
+    node->height = height;
 
-      bool isUniform = errorValidation(errorMethod, image, x, y, width, height, threshold, node->meanColor);
+    // Update maxDepth
+    if (currentDepth > maxDepth) {
+        maxDepth = currentDepth;
+    }
 
-      if (isUniform || width <= 4 || height <= 4){
-          node->isLeaf = true;
-          node->topLeft = nullptr;
-          node->topRight = nullptr;
-          node->bottomLeft = nullptr;
-          node->bottomRight = nullptr;
-          nodeCount ++;
-          return;
-      }
+    bool isUniform = errorValidation(errorMethod, image, x, y, width, height, threshold, node->meanColor);
 
-      // jika nggak uniform, split node jadi empat bagian
-      node->isLeaf = false;
-      int halfWidth = width / 2;
-      int halfHeight = height / 2;
-      int rightWidth = width - halfWidth;
-      int bottomHeight = height - halfHeight;
+    if (isUniform || width <= minBlockSize || height <= minBlockSize){
+        node->isLeaf = true;
+        node->topLeft = nullptr;
+        node->topRight = nullptr;
+        node->bottomLeft = nullptr;
+        node->bottomRight = nullptr;
+        nodeCount ++;
+        return;
+    }
 
-      // rekursif membuat empat anak
-      node->topLeft = new QuadTreeNode();
-      buildNode(node->topLeft, image, x, y, halfWidth, halfHeight, threshold, maxDepth, nodeCount, errorMethod);
+    // Not uniform, split
+    node->isLeaf = false;
+    int halfWidth = width / 2;
+    int halfHeight = height / 2;
+    int rightWidth = width - halfWidth;
+    int bottomHeight = height - halfHeight;
 
-      node->topRight = new QuadTreeNode();
-      buildNode(node->topRight, image, x + halfWidth, y, rightWidth, halfHeight, threshold, maxDepth, nodeCount, errorMethod);
+    node->topLeft = new QuadTreeNode();
+    buildNode(node->topLeft, image, x, y, halfWidth, halfHeight, threshold, currentDepth + 1, maxDepth, nodeCount, errorMethod, minBlockSize);
 
-      node->bottomLeft = new QuadTreeNode();
-      buildNode(node->bottomLeft, image, x, y + halfHeight, halfWidth, bottomHeight, threshold, maxDepth, nodeCount, errorMethod);
+    node->topRight = new QuadTreeNode();
+    buildNode(node->topRight, image, x + halfWidth, y, rightWidth, halfHeight, threshold, currentDepth + 1, maxDepth, nodeCount, errorMethod, minBlockSize);
 
-      node->bottomRight = new QuadTreeNode();
-      buildNode(node->bottomRight, image, x + halfWidth, y + halfHeight, rightWidth, bottomHeight, threshold, maxDepth, nodeCount, errorMethod);
-      
-      nodeCount ++;
-  }
+    node->bottomLeft = new QuadTreeNode();
+    buildNode(node->bottomLeft, image, x, y + halfHeight, halfWidth, bottomHeight, threshold, currentDepth + 1, maxDepth, nodeCount, errorMethod, minBlockSize);
+
+    node->bottomRight = new QuadTreeNode();
+    buildNode(node->bottomRight, image, x + halfWidth, y + halfHeight, rightWidth, bottomHeight, threshold, currentDepth + 1, maxDepth, nodeCount, errorMethod, minBlockSize);
+
+    nodeCount ++;
+}
+

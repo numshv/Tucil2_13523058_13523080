@@ -121,13 +121,19 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
 
     // Output image path
     cout << "Enter output image path (including the extension) " << endl;
-    cout << "Valid extensions: .png, .jpg, .jpeg, .bmp" << endl << endl;
+    cout << "Valid extensions: .png, .jpg, .jpeg, .bmp" << endl;
+    cout << "Output path cannot be the same as input path" << endl << endl;
 
     while (true) {
         outputImagePath = getNonEmptyLine("Output image path: ");
     
         if (!hasValidExtension(outputImagePath)) {
             cout << "\nInvalid or missing file extension. Please enter a path with one of the following extensions: .png, .jpg, .jpeg, .bmp\n\n";
+            continue;
+        }
+
+        if (outputImagePath == inputImagePath) {
+            cout << "\nOutput path cannot be the same as input path. Please enter a different path.\n\n";
             continue;
         }
     
@@ -229,12 +235,14 @@ void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::
 }
 
 void outputHandler(const string &outputImagePath, const string &inputImagePath, QuadTree &quadtree, std::chrono::milliseconds duration){
+    long long inputSize = getFileSize(inputImagePath)/1024;
+    long long outputSize = getFileSize(outputImagePath)/1024;
     cout << "\n\n=========================\n" << endl;
     cout << "Output image successfully rendered to: " << outputImagePath << endl;
     cout << "Compression execution duration: " << duration.count() << " ms" << endl;
-    cout << "Input image size: " << getFileSize(inputImagePath) / 1024 << " KB" << endl;
-    cout << "Output image size: " << getFileSize(outputImagePath) / 1024 << " KB" << endl;
-    cout << "Compression ratio: " << (float)getFileSize(outputImagePath) / getFileSize(inputImagePath) * 100 << "%" << endl;
+    cout << "Input image size: " << inputSize << " KB" << endl;
+    cout << "Output image size: " << outputSize << " KB" << endl;
+    cout << "Compression ratio: " << (1.0 - (float(outputSize) / float(inputSize))) * 100 << "% reduction" << endl;
     cout << "Max depth of quadtree: " << quadtree.maxDepth << endl;
     cout << "Total nodes in quadtree: " << quadtree.nodeCount << endl << endl;
     cout << "=========================\n";

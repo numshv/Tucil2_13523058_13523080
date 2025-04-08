@@ -22,8 +22,8 @@ struct QuadTreeNode {
 
     // Rekursif membangun quadtree
     void buildNode(QuadTreeNode*& node, const std::vector<std::vector<RGB>>& image,
-                        int x, int y, int width, int height, float threshold,
-                        int& maxDepth, int& nodeCount, const std::string& errorMethod);
+                        int x, int y, int width, int height, float threshold, int currentDepth,
+                        int& maxDepth, int& nodeCount, const std::string& errorMethod, int minBlockSize);
    
 };
 

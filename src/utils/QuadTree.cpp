@@ -18,12 +18,12 @@ void QuadTree::destroyTree(QuadTreeNode* node) {
 
     delete node;
 }
-void QuadTree::buildTree(const std::vector<std::vector<RGB>>& image, float threshold, const std::string& errorMethod){
+void QuadTree::buildTree(const std::vector<std::vector<RGB>>& image, float threshold, const std::string& errorMethod, int minBlockSize) {
     root = new QuadTreeNode();
     maxDepth = 0;
     nodeCount = 0;
 
-    root->buildNode(root, image, 0, 0, image[0].size(), image.size(), threshold, maxDepth, nodeCount, errorMethod);
+    root->buildNode(root, image, 0, 0, image[0].size(), image.size(), threshold, 1, maxDepth, nodeCount, errorMethod, minBlockSize);
 }
 
 // ini baru, buat simpan gambarnya supaya ngga besar
