@@ -7,6 +7,7 @@ using namespace std;
 int main(){
     string inputImagePath, errorMethod, outputImagePath;
     vector<vector<RGB>> image;
+    std::vector<std::vector<RGB>> imageOri = image;
     float threshold, targetCompression;
     int minBlockSize;
 
@@ -22,7 +23,12 @@ int main(){
     qt.root = new QuadTreeNode();
 
     QuadTreeNode qtn;
-    qtn.buildNode(qt.root, image, 0, 0, image[0].size(), image.size(), threshold, qt.maxDepth, qt.nodeCount, errorMethod);
+    if (errorMethod == "ssim"){
+        qtn.buildNodeSSIM(qt.root, imageOri, image, 0, 0, image[0].size(), image.size(), threshold, qt.maxDepth, qt.nodeCount);
+    }
+    else{
+        qtn.buildNode(qt.root, image, 0, 0, image[0].size(), image.size(), threshold, qt.maxDepth, qt.nodeCount, errorMethod);
+    }
     std::vector<std::vector<RGB>> compressedImage = image;
     qt.reconstructImage(compressedImage);
 

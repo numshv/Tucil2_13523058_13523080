@@ -24,6 +24,9 @@ struct QuadTreeNode {
     void buildNode(QuadTreeNode*& node, const std::vector<std::vector<RGB>>& image,
                         int x, int y, int width, int height, float threshold,
                         int& maxDepth, int& nodeCount, const std::string& errorMethod);
+
+    void buildNodeSSIM(QuadTreeNode*& node, const std::vector<std::vector<RGB>>& image1, const std::vector<std::vector<RGB>>& image2,
+        int x, int y, int width, int height, float threshold, int& maxDepth, int& nodeCount);
    
 };
 

@@ -174,7 +174,109 @@ bool entropy(const vector<vector<RGB>>& image, int x, int y, int width, int heig
     float avgEntropy = (entropyR + entropyG + entropyB) / 3.0f;
     
     // Return true if entropy is above threshold
-    return avgEntropy > threshold;
+    return avgEntropy <= threshold;
+}
+
+bool ssim(const vector<vector<RGB>>& image1, const vector<vector<RGB>>& image2, int x, int y, int width, int height, float threshold, RGB &mean) {
+    const float C1 = 6.5025f;   // (0.01 * 255)^2
+    const float C2 = 58.5225f;  // (0.03 * 255)^2
+    
+    // Weights for RGB channels
+    const float wR = 0.299f;
+    const float wG = 0.587f;
+    const float wB = 0.114f;
+    
+    // Initialize variables for mean calculation
+    float sumR1 = 0, sumG1 = 0, sumB1 = 0;
+    float sumR2 = 0, sumG2 = 0, sumB2 = 0;
+    float sumR1R2 = 0, sumG1G2 = 0, sumB1B2 = 0;
+    float sumR1Sq = 0, sumG1Sq = 0, sumB1Sq = 0;
+    float sumR2Sq = 0, sumG2Sq = 0, sumB2Sq = 0;
+    
+    int count = 0;
+    
+    // Calculate sums for means, variances and covariances
+    for (int j = y; j < y + height && j < image1.size() && j < image2.size(); j++) {
+        for (int i = x; i < x + width && i < image1[j].size() && i < image2[j].size(); i++) {
+            float r1 = image1[j][i].r;
+            float g1 = image1[j][i].g;
+            float b1 = image1[j][i].b;
+            
+            float r2 = image2[j][i].r;
+            float g2 = image2[j][i].g;
+            float b2 = image2[j][i].b;
+            
+            // Sum for means
+            sumR1 += r1;
+            sumG1 += g1;
+            sumB1 += b1;
+            
+            sumR2 += r2;
+            sumG2 += g2;
+            sumB2 += b2;
+            
+            // Sum for variances
+            sumR1Sq += r1 * r1;
+            sumG1Sq += g1 * g1;
+            sumB1Sq += b1 * b1;
+            
+            sumR2Sq += r2 * r2;
+            sumG2Sq += g2 * g2;
+            sumB2Sq += b2 * b2;
+            
+            // Sum for covariances
+            sumR1R2 += r1 * r2;
+            sumG1G2 += g1 * g2;
+            sumB1B2 += b1 * b2;
+            
+            count++;
+        }
+    }
+    
+    if (count == 0) return false;
+    
+    // Calculate means
+    float meanR1 = sumR1 / count;
+    float meanG1 = sumG1 / count;
+    float meanB1 = sumB1 / count;
+    
+    float meanR2 = sumR2 / count;
+    float meanG2 = sumG2 / count;
+    float meanB2 = sumB2 / count;
+    
+    // Set output mean (average of the two images)
+    mean.r = static_cast<int>((meanR1 + meanR2) / 2.0f);
+    mean.g = static_cast<int>((meanG1 + meanG2) / 2.0f);
+    mean.b = static_cast<int>((meanB1 + meanB2) / 2.0f);
+    
+    // Calculate variances and covariances
+    float varR1 = (sumR1Sq / count) - (meanR1 * meanR1);
+    float varG1 = (sumG1Sq / count) - (meanG1 * meanG1);
+    float varB1 = (sumB1Sq / count) - (meanB1 * meanB1);
+    
+    float varR2 = (sumR2Sq / count) - (meanR2 * meanR2);
+    float varG2 = (sumG2Sq / count) - (meanG2 * meanG2);
+    float varB2 = (sumB2Sq / count) - (meanB2 * meanB2);
+    
+    float covarR = (sumR1R2 / count) - (meanR1 * meanR2);
+    float covarG = (sumG1G2 / count) - (meanG1 * meanG2);
+    float covarB = (sumB1B2 / count) - (meanB1 * meanB2);
+    
+    // Calculate SSIM for each channel
+    float ssimR = ((2 * meanR1 * meanR2 + C1) * (2 * covarR + C2)) / 
+                  ((meanR1 * meanR1 + meanR2 * meanR2 + C1) * (varR1 + varR2 + C2));
+    
+    float ssimG = ((2 * meanG1 * meanG2 + C1) * (2 * covarG + C2)) / 
+                  ((meanG1 * meanG1 + meanG2 * meanG2 + C1) * (varG1 + varG2 + C2));
+    
+    float ssimB = ((2 * meanB1 * meanB2 + C1) * (2 * covarB + C2)) / 
+                  ((meanB1 * meanB1 + meanB2 * meanB2 + C1) * (varB1 + varB2 + C2));
+    
+    // Calculate weighted SSIM
+    float ssimRGB = wR * ssimR + wG * ssimG + wB * ssimB;
+    
+    // Return true if SSIM is above threshold
+    return ssimRGB > threshold;
 }
 
 // Ini nanti selama rekursi pakai ini aja langsung

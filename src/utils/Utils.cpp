@@ -41,7 +41,7 @@ bool processImage(const string &imagePath, vector<vector<RGB>> &image) {
 
 bool errorValidation(const string &errorMethod) {
     // List of valid error calculation methods
-    const vector<string> validMethods = {"variance", "mad", "mean absolute deviation", "max pixel difference", "entropy"};
+    const vector<string> validMethods = {"variance", "mad", "mean absolute deviation", "max pixel difference", "mpd", "entropy", "ssim"};
     return find(validMethods.begin(), validMethods.end(), errorMethod) == validMethods.end();
 }
 
@@ -50,11 +50,14 @@ bool isValidThreshold(const string &errorMethod, float threshold) {
         return threshold > 0 && threshold <= 65025;
     } else if (errorMethod == "mad" || errorMethod == "mean absolute deviation") {
         return threshold > 0 && threshold <= 255;
-    } else if (errorMethod == "max pixel difference") {
+    } else if (errorMethod == "mpd") {
         return threshold >= 0 && threshold <= 255;
     } else if (errorMethod == "entropy") {
         return threshold >= 0 && threshold <= 8;
-    } else {
+    } else if (errorMethod == "ssim"){
+        return threshold >= -1 && threshold <= 1;
+    }
+    else{
         cerr << "Threshold is not in valid range." << endl;
         return false;
     }
