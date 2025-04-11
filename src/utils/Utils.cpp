@@ -83,7 +83,7 @@ bool isValidThreshold(const string &errorMethod, float threshold) {
         return threshold > 0 && threshold <= 65025;
     } else if (errorMethod == "mad" || errorMethod == "mean absolute deviation") {
         return threshold > 0 && threshold <= 255;
-    } else if (errorMethod == "max pixel difference") {
+    } else if (errorMethod == "max pixel difference" || errorMethod == "mpd") {
         return threshold >= 0 && threshold <= 255;
     } else if (errorMethod == "entropy") {
         return threshold >= 0 && threshold <= 8;
@@ -154,7 +154,7 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
     
 
     // Error calculation method
-    cout << "Select error calculation method" << endl<< "(Variance, Mean Absolute Deviation (MAD), Max Pixel Difference, Entropy)" <<endl << endl;
+    cout << "Select error calculation method" << endl<< "(Variance, Mean Absolute Deviation (MAD), Max Pixel Difference, Entropy, SSIM)" <<endl << endl;
 
     while (true) {
         errorMethod = getNonEmptyLine("Error calculation method: ");
