@@ -10,7 +10,7 @@ bool variance(const vector<vector<RGB>>& image, int x, int y, int width, int hei
 bool mad(const vector<vector<RGB>>& image, int x, int y, int width, int height, float threshold, RGB &mean);  
 bool mpd(const vector<vector<RGB>>& image, int x, int y, int width, int height, float threshold, RGB &mean);  
 bool entropy(const vector<vector<RGB>>& image, int x, int y, int width, int height, float threshold, RGB &mean);  
-
+bool ssim(const std::vector<std::vector<RGB>>& image, int x, int y, int width, int height, float threshold, RGB &mean);
 bool errorValidation(const string &errorMethod, const vector<vector<RGB>>& image, int x, int y, int width, int height, float threshold, RGB &mean);
 
 #endif

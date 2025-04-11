@@ -18,7 +18,13 @@ int main(){
 
     //Implementasi rekursi di sini
     QuadTree qt;
-    qt.buildTree(image, threshold, errorMethod, minBlockSize);
+    vector<vector<RGB>> imageOri = image;
+    if (errorMethod == "ssim"){
+        qt.buildTree(image, imageOri, threshold, errorMethod, minBlockSize);
+    }
+    else{
+        qt.buildTree(image, threshold, errorMethod, minBlockSize);
+    }
     qt.reconstructImage(image);
 
     // Rekursi selesai
