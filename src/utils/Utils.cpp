@@ -6,23 +6,23 @@ using namespace std;
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../includes/stb_image_write.h"
 
-// Function to check if a file exists
+// mengecek apakah file sudah ada atau belum
 bool fileExists(const string &filename) {
     ifstream file(filename);
     return file.good();
 }
 
 float highestThreshold(const string& errorMethod){
-    if(errorMethod == "variance"){
+    if(errorMethod == "1"){
         return 65025.0;
     }
-    else if(errorMethod=="mad" || errorMethod =="mean absolute deviation"){
+    else if(errorMethod=="2"){
         return 255.0;
     }
-    else if(errorMethod=="mpd" || errorMethod =="max pixel difference"){
+    else if(errorMethod=="3"){
         return 255.0;
     }
-    else if(errorMethod=="entropy"){
+    else if(errorMethod=="4"){
         return 8.0;
     }
     else{
@@ -31,16 +31,16 @@ float highestThreshold(const string& errorMethod){
 }
 
 float lowestThreshold(const string& errorMethod){
-    if(errorMethod == "variance"){
+    if(errorMethod == "1"){
         return 0.0;
     }
-    else if(errorMethod=="mad" || errorMethod =="mean absolute deviation"){
+    else if(errorMethod=="2"){
         return 0.0;
     }
-    else if(errorMethod=="mpd" || errorMethod =="max pixel difference"){
+    else if(errorMethod=="3"){
         return 0.0;
     }
-    else if(errorMethod=="entropy"){
+    else if(errorMethod=="4"){
         return 0.0;
     }
     else{
@@ -49,11 +49,11 @@ float lowestThreshold(const string& errorMethod){
 }
 
 
-// Function to check if the file has a valid image extension
+// validasi extention file
 bool hasValidExtension(const string& filename) {
     size_t dotPos = filename.find_last_of('.');
     if (dotPos == string::npos || dotPos == filename.length() - 1) {
-        return false; // No extension or ends with a dot
+        return false; 
     }
 
     string ext = filename.substr(dotPos + 1);
@@ -62,14 +62,14 @@ bool hasValidExtension(const string& filename) {
 }
 
 
-// Helper function to Trim leading and trailing whitespace
+// helper function to trim leading and trailing whitespace
 string trim(const string &s) {
     size_t start = s.find_first_not_of(" \t\n\r");
     size_t end = s.find_last_not_of(" \t\n\r");
     return (start == string::npos) ? "" : s.substr(start, end - start + 1);
 }
 
-// Helper function to Get non-empty line input
+// helper function to Get non-empty line input
 string getNonEmptyLine(const string &prompt) {
     string input;
     do {
@@ -81,7 +81,7 @@ string getNonEmptyLine(const string &prompt) {
 }
 
 
-// Function to process image into 2D vector of RGB using stb_image.h
+// function to process image into 2D vector of RGB using stb_image.h
 bool processImage(const string &imagePath, vector<vector<RGB>> &image) {
     int width, height, channels;
 
@@ -92,10 +92,10 @@ bool processImage(const string &imagePath, vector<vector<RGB>> &image) {
         return false;
     }
 
-    // Resize vector to match image dimensions
+    // resize vector to match image dimensions
     image.resize(height, vector<RGB>(width));
 
-    // Iterate through each pixel (stbi_load stores RGB in a 1D array)
+    // store RGB ke array
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int index = (i * width + j) * 3; // Each pixel has 3 channels (RGB)
@@ -103,27 +103,28 @@ bool processImage(const string &imagePath, vector<vector<RGB>> &image) {
         }
     }
 
-    // Free image data after processing
+    // fee image data after processing
     stbi_image_free(data);
     return true;
 }
 
 bool isValidErrorMethod(const string &errorMethod) {
-    // List of valid error calculation methods
-    const vector<string> validMethods = {"variance", "mad", "mean absolute deviation", "max pixel difference", "mpd", "entropy", "ssim"};
+    // opsi perhitungan error
+    const vector<string> validMethods = {"1", "2", "3", "4", "5"};
     return find(validMethods.begin(), validMethods.end(), errorMethod) == validMethods.end();
 }
 
+// validasi threshold
 bool isValidThreshold(const string &errorMethod, float threshold) {
-    if (errorMethod == "variance") {
+    if (errorMethod == "1") {
         return threshold > 0 && threshold <= 65025;
-    } else if (errorMethod == "mad" || errorMethod == "mean absolute deviation") {
+    } else if (errorMethod == "2") {
         return threshold > 0 && threshold <= 255;
-    } else if (errorMethod == "max pixel difference" || errorMethod == "mpd") {
+    } else if (errorMethod == "3") {
         return threshold >= 0 && threshold <= 255;
-    } else if (errorMethod == "entropy") {
+    } else if (errorMethod == "4") {
         return threshold >= 0 && threshold <= 8;
-    } else if (errorMethod == "ssim"){
+    } else if (errorMethod == "5"){
         return threshold > 0 && threshold < 1;
     }
     else {
@@ -132,16 +133,29 @@ bool isValidThreshold(const string &errorMethod, float threshold) {
     }
 }
 
+// mencari ukuran dari file gambar
 long long getFileSize(const std::string& path) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
-    if (!file) return -1; // Error opening file
-    return file.tellg();  // Returns size in bytes
+    if (!file) return -1; 
+    return file.tellg();  
 }
 
-// Function to handle input and process the image
+// menghandle semua kebutuhan input
 void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &errorMethod,
                   float &threshold, int &minBlockSize, float &targetCompression, string &outputImagePath) {
-
+    cout << R"(
+ ____  __  ___  ____  _  _  ____  ____      
+(  _ \(  )/ __)(_  _)/ )( \(  _ \(  __)   
+ ) __/ )(( (__   )(  ) \/ ( )   / ) _)   
+(__)  (__)\___) (__) \____/(__\_)(____)  
+                        )" <<endl;
+    cout << R"(
+  ___  __   _  _  ____  ____  ____  ____  ____  __  __   __ _ 
+ / __)/  \ ( \/ )(  _ \(  _ \(  __)/ ___)/ ___)(  )/  \ (  ( \
+( (__(  O )/ \/ \ ) __/ )   / ) _) \___ \\___ \ )((  O )/    /
+ \___)\__/ \_)(_/(__)  (__\_)(____)(____/(____/(__)\__/ \_)__)
+    )"<<endl;
+    cout << "\n==============================================================\n" << endl;
     // Input image path
     cout << "Enter input image path (including the extension) " << endl;
     cout << "Valid extensions: .png, .jpg, .jpeg, .bmp" << endl << endl;
@@ -149,19 +163,18 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
     while (true) {
         inputImagePath = getNonEmptyLine("Image input path: ");
         if (!fileExists(inputImagePath))
-            cout << "File not found.\n" << endl;
+            cout << "File not found.\n";
         else if (!hasValidExtension(inputImagePath))
             cout << "Invalid file extension. Valid extensions: .png, .jpg, .jpeg, .bmp\n";
         else
             break;
     }
-    cout << endl;
 
-
+    cout << "\n==============================================================\n" << endl;
     // Output image path
     cout << "Enter output image path (including the extension) " << endl;
     cout << "Valid extensions: .png, .jpg, .jpeg, .bmp" << endl;
-    cout << "Output path cannot be the same as input path" << endl << endl;
+    cout << "Output path cannot be the same as input path" << endl;
 
     while (true) {
         outputImagePath = getNonEmptyLine("Output image path: ");
@@ -185,12 +198,17 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
             break;
         }
     }
-
-    cout << endl;
     
+    cout << "\n==============================================================\n" << endl;
+    // error calculation method
+    cout << "Select error calculation method (choose the number)" << endl << endl;
+    cout <<  "1. Variance" << endl;
+    cout <<  "2. Mean Absolute Deviation (MAD)" << endl;
+    cout <<  "3. Max Pixel Difference" << endl;
+    cout <<  "4. Entropy" << endl;
+    cout <<  "5. SSIM" << endl;
+    cout << "\n==============================================================\n" << endl;
 
-    // Error calculation method
-    cout << "Select error calculation method" << endl<< "(Variance, Mean Absolute Deviation (MAD), Max Pixel Difference, Entropy, SSIM)" <<endl << endl;
 
     while (true) {
         errorMethod = getNonEmptyLine("Error calculation method: ");
@@ -201,7 +219,7 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
 
     cout << endl;
     
-    // Threshold value
+    // threshold value
     while (true) {
         cout << "Enter threshold value: ";
         string line;
@@ -213,7 +231,7 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
     cout << endl;
 
 
-    // Minimum block size
+    // minimum block size
     while (true) {
         cout << "Enter minimum block size: ";
         string line;
@@ -234,15 +252,16 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
         if (ss >> targetCompression && targetCompression >= 0.0f && targetCompression <= 1.0f) break;
         cout << "\nInvalid input. Please enter a float between 0 and 1.\n\n";
     }
-    cout << endl << endl << endl;
+    cout << "\n==============================================================\n" << endl;
 
-    // Load and process image into 2D vector
+    //mengubah gambar menjadi dua dimensi
     if (!processImage(inputImagePath, image)) {
         cerr << "Image processing failed. Exiting..." << endl;
         exit(EXIT_FAILURE);
     }
 }
 
+// menyimpan gambar setelah melalui proses divide conquer
 void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::string& outputImagePath) {
     if (image.empty() || image[0].empty()) {
         std::cerr << "Error: Empty image data. Cannot save.\n";
@@ -252,7 +271,6 @@ void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::
     const int height = image.size();
     const int width = image[0].size();
 
-    // Create a flat buffer for image data (RGB format)
     std::vector<uint8_t> data(height * width * 3);
 
     for (int i = 0; i < height; ++i) {
@@ -265,12 +283,12 @@ void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::
         }
     }
 
-    // Write image as PNG
     if (!stbi_write_png(outputImagePath.c_str(), width, height, 3, data.data(), width * 3)) {
         std::cerr << "Failed to write image to: " << outputImagePath << std::endl;
     }
 }
 
+// bonus percentage
 float standardPercentageCompression(
     std::vector<std::vector<RGB>>& image,
     const std::string& inputImagePath,
@@ -369,7 +387,7 @@ float ssimPercentageCompression(
             break;
         }
 
-        // ✅ Koreksi arah pencarian
+        // Koreksi arah pencarian
         if (achievedCompression < targetCompression) {
             high = mid; // masih terlalu kecil → kompresi belum cukup → turunkan threshold
         } else {
@@ -384,14 +402,11 @@ float ssimPercentageCompression(
     return bestThreshold;
 }
 
-
-
-
-
+// menghandle output terkait informasi dari hasil kompresi gambar
 void outputHandler(const string &outputImagePath, const string &inputImagePath, int maxDepth, int nodeCount, std::chrono::milliseconds duration){
     long long inputSize = getFileSize(inputImagePath)/1024;
     long long outputSize = getFileSize(outputImagePath)/1024;
-    cout << "\n\n=========================\n" << endl;
+    cout << "\n==============================================================\n" << endl;
     cout << "Output image successfully rendered to: " << outputImagePath << endl;
     cout << "Compression execution duration: " << duration.count() << " ms" << endl;
     cout << "Input image size: " << inputSize << " KB" << endl;
@@ -399,5 +414,5 @@ void outputHandler(const string &outputImagePath, const string &inputImagePath, 
     cout << "Compression ratio: " << (1.0 - (float(outputSize) / float(inputSize))) * 100 << "% reduction" << endl;
     cout << "Max depth of quadtree: " << maxDepth << endl;
     cout << "Total nodes in quadtree: " << nodeCount << endl << endl;
-    cout << "=========================\n";
+    cout << "\n==============================================================\n" << endl;
 }

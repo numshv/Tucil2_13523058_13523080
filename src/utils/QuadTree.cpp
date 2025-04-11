@@ -10,7 +10,7 @@ QuadTree::~QuadTree() {
 void QuadTree::destroyTree(QuadTreeNode* node) {
     if (node == nullptr) return;
 
-    // Rekursif hapus semua anak
+    // rekursif hapus semua anak
     destroyTree(node->topLeft);
     destroyTree(node->topRight);
     destroyTree(node->bottomLeft);
@@ -18,6 +18,8 @@ void QuadTree::destroyTree(QuadTreeNode* node) {
 
     delete node;
 }
+
+// intinya ini bakal manggil buildNode, dipisah supaya lebih modular
 void QuadTree::buildTree(const std::vector<std::vector<RGB>>& image, float threshold, const std::string& errorMethod, int minBlockSize) {
     root = new QuadTreeNode();
     maxDepth = 0;
@@ -25,6 +27,7 @@ void QuadTree::buildTree(const std::vector<std::vector<RGB>>& image, float thres
 
     root->buildNode(root, image, 0, 0, image[0].size(), image.size(), threshold, 1, maxDepth, nodeCount, errorMethod, minBlockSize);
 }
+// yang ini untuk kasus SSIM
 void QuadTree::buildTree(const std::vector<std::vector<RGB>>& image1, const std::vector<std::vector<RGB>>& image2, float threshold, const std::string& errorMethod, int minBlockSize) {
     root = new QuadTreeNode();
     maxDepth = 0;
@@ -41,7 +44,7 @@ void QuadTree::reconstructImage(std::vector<std::vector<RGB>>& image) {
 
 void QuadTree::reconstructRecursive(QuadTreeNode* node, std::vector<std::vector<RGB>>& image) {
     if (node->isLeaf) {
-        // Fill the entire region with mean color
+        // isi bagian dengan rata-rata warna
         for (int y = node->y; y < node->y + node->height; ++y) {
             for (int x = node->x; x < node->x + node->width; ++x) {
                 image[y][x] = node->meanColor;
