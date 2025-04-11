@@ -119,8 +119,8 @@ Gambar hasil kompresi akan secara otomatis tersimpan pada absolute output path y
 1. Input gambar yang ingin dikompres
 ![imgur](https://i.imgur.com/JsstQyk.png)
 2. Lengkapi informasi yang diminta seperti absolute path gambar input, absolute path gambar output, metode error, threshold, minimum size block, dan target persentasi kompresi
-![imgur](https://i.imgur.com/gzrlLrH.jpg)
-3. Program akan memproses gambar tersebut kemudian akan muncul hasil kompresi gambar beserta detail informasi hasil kompresi sebagai berikut:
-![imgur](https://i.imgur.com/zIasqfU.jpg)
-4. Hasil kompresi gambar yang tersimpan di path output
+![imgur](https://i.imgur.com/XDIIBX5.jpg)
+4. Program akan memproses gambar tersebut kemudian akan muncul hasil kompresi gambar beserta detail informasi hasil kompresi sebagai berikut:
+![imgur](https://i.imgur.com/E7oCTE2.jpg)
+5. Hasil kompresi gambar yang tersimpan di path output
 ![imgur](https://i.imgur.com/XkLd5Fl.jpg)
