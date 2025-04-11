@@ -234,7 +234,61 @@ void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::
     }
 }
 
-void outputHandler(const string &outputImagePath, const string &inputImagePath, QuadTree &quadtree, std::chrono::milliseconds duration){
+float percentageCompression(
+    const std::vector<std::vector<RGB>>& image,
+    const std::string& inputImagePath,
+    const std::string& outputImagePath,
+    const std::string& errorMethod,
+    int minBlockSize,
+    float targetCompression
+) {
+    float low = 0.0f;
+    float high = 10000.0f;
+    float bestThreshold = high;
+    float tolerance = 0.02f;  // 2% toleransi
+    int maxIterations = 30;
+
+    std::vector<std::vector<RGB>> compressedImage;
+
+    for (int i = 0; i < maxIterations; ++i) {
+        float mid = (low + high) / 2.0f;
+
+        // Rebuild quadtree dengan threshold saat ini
+        QuadTree qt;
+        qt.buildTree(image, mid, errorMethod, minBlockSize);
+        compressedImage = image;
+        qt.reconstructImage(compressedImage);
+
+        // Simpan sementara untuk hitung size
+        saveCompressedImage(compressedImage, outputImagePath);
+
+        long long inputSize = getFileSize(inputImagePath);
+        long long outputSize = getFileSize(outputImagePath);
+        float achievedCompression = 1.0f - float(outputSize) / float(inputSize);
+
+        float diff = std::abs(achievedCompression - targetCompression);
+
+        // Jika sudah mendekati target, return langsung
+        if (diff <= tolerance) {
+            bestThreshold = mid;
+            break;
+        }
+
+        // Jika kompresi terlalu besar → threshold terlalu tinggi → turunkan
+        if (achievedCompression > targetCompression) {
+            high = mid;
+        } else {
+            low = mid;
+        }
+
+        bestThreshold = mid;  // Simpan sebagai kandidat terbaik
+    }
+
+    return bestThreshold;
+}
+
+
+void outputHandler(const string &outputImagePath, const string &inputImagePath, int maxDepth, int nodeCount, std::chrono::milliseconds duration){
     long long inputSize = getFileSize(inputImagePath)/1024;
     long long outputSize = getFileSize(outputImagePath)/1024;
     cout << "\n\n=========================\n" << endl;
@@ -243,7 +297,7 @@ void outputHandler(const string &outputImagePath, const string &inputImagePath, 
     cout << "Input image size: " << inputSize << " KB" << endl;
     cout << "Output image size: " << outputSize << " KB" << endl;
     cout << "Compression ratio: " << (1.0 - (float(outputSize) / float(inputSize))) * 100 << "% reduction" << endl;
-    cout << "Max depth of quadtree: " << quadtree.maxDepth << endl;
-    cout << "Total nodes in quadtree: " << quadtree.nodeCount << endl << endl;
+    cout << "Max depth of quadtree: " << maxDepth << endl;
+    cout << "Total nodes in quadtree: " << nodeCount << endl << endl;
     cout << "=========================\n";
 }

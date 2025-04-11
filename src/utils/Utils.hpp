@@ -18,6 +18,15 @@ long long getFileSize(const std::string& path);
 void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &errorMethod,
                   float &threshold, int &minBlockSize, float &targetCompression, string &outputImagePath);
 void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::string& outputImagePath);
-void outputHandler(const string &outputImagePath, const string &inputImagePath, QuadTree &quadtree, std::chrono::milliseconds duration);
+void outputHandler(const string &outputImagePath, const string &inputImagePath, int maxDepth, int nodeCount, std::chrono::milliseconds duration);
+float percentageCompression(
+    const std::vector<std::vector<RGB>>& image,
+    const std::string& inputImagePath,
+    const std::string& outputImagePath,
+    const std::string& errorMethod,
+    int minBlockSize,
+    float targetCompression
+);
+
 
 #endif

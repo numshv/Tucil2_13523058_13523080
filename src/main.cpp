@@ -7,8 +7,9 @@ using namespace std;
 int main(){
     string inputImagePath, errorMethod, outputImagePath;
     vector<vector<RGB>> image;
+    vector<vector<vector<RGB>>> gifFrames;
     float threshold, targetCompression;
-    int minBlockSize;
+    int minBlockSize, maxDepth, nodeCount;
 
     // Handle input validations and process the image into 2d vector of rgb
     inputHandler(inputImagePath, image, errorMethod, threshold, minBlockSize, targetCompression, outputImagePath);
@@ -20,6 +21,8 @@ int main(){
 
     QuadTree qt;
     qt.buildTree(image, threshold, errorMethod, minBlockSize);
+    maxDepth = qt.maxDepth;
+    nodeCount = qt.nodeCount;
     qt.reconstructImage(image);
 
     //End of quadtree recursion compression 
@@ -32,7 +35,7 @@ int main(){
     saveCompressedImage(image, outputImagePath);
 
     // Print the output
-    outputHandler(outputImagePath, inputImagePath, qt, duration);
+    outputHandler(outputImagePath, inputImagePath, maxDepth, nodeCount, duration);
 
     return 0;
 }
