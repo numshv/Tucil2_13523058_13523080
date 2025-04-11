@@ -314,7 +314,7 @@ bool errorValidation(const string &errorMethod, const vector<vector<RGB>>& image
         return variance(image, x, y, width, height, threshold, mean);
     } else if (errorMethod == "mad" || errorMethod == "mean absolute deviation") {
         return mad(image, x, y, width, height, threshold, mean);
-    } else if (errorMethod == "max pixel difference") {
+    } else if (errorMethod == "max pixel difference" || errorMethod == "mpd") {
         return mpd(image, x, y, width, height, threshold, mean);
     } else{
         return entropy(image, x, y, width, height, threshold, mean);

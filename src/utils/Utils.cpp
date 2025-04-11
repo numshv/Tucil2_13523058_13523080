@@ -221,7 +221,7 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
             } else if(errorMethodInput == "2"){
                 errorMethod = "mad";
             } else if(errorMethodInput == "3"){
-                errorMethod = "mpd";
+                errorMethod = "max pixel difference";
             } else if(errorMethodInput == "4"){
                 errorMethod = "entropy";
             }else{
