@@ -138,6 +138,14 @@ long long getFileSize(const std::string& path) {
     return file.tellg();  // Returns size in bytes
 }
 
+int getMaxBlockSize(const std::vector<std::vector<RGB>>& image) {
+    if (image.empty() || image[0].empty()) return -1;
+    int height = image.size();
+    int width = image[0].size();
+    return std::min(width, height);
+}
+
+
 // Function to handle input and process the image
 void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &errorMethod,
                   float &threshold, int &minBlockSize, float &targetCompression, string &outputImagePath) {
@@ -169,6 +177,12 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
             break;
     }
     cout << "\n==============================================================\n" << endl;
+
+    //mengubah gambar menjadi dua dimensi
+    if (!processImage(inputImagePath, image)) {
+        cerr << "Image processing failed. Exiting..." << endl;
+        exit(EXIT_FAILURE);
+    }
 
 
     // Output image path
@@ -252,10 +266,11 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
         string line;
         getline(cin, line);
         stringstream ss(line);
-        if (ss >> minBlockSize && minBlockSize > 1) break;
-        cout << "\nInvalid input. Please enter an integer greater than 1 for block size.\n\n";
+        int maxBlockSize = getMaxBlockSize(image);
+        if (ss >> minBlockSize && minBlockSize > 1 && minBlockSize <= maxBlockSize) break;
+        cout << "\nInvalid input. Please enter an integer greater than 1 and less than or equal to " << maxBlockSize << ".\n\n";
     }
-    cout << endl;
+    
 
 
     // target compression percentage
@@ -268,12 +283,6 @@ void inputHandler(string &inputImagePath, vector<vector<RGB>> &image, string &er
         cout << "\nInvalid input. Please enter a float between 0 and 1.\n\n";
     }
     cout << "\n==============================================================\n" << endl;
-
-    //mengubah gambar menjadi dua dimensi
-    if (!processImage(inputImagePath, image)) {
-        cerr << "Image processing failed. Exiting..." << endl;
-        exit(EXIT_FAILURE);
-    }
 }
 
 // menyimpan gambar setelah melalui proses divide conquer
