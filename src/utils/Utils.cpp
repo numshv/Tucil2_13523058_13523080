@@ -12,6 +12,42 @@ bool fileExists(const string &filename) {
     return file.good();
 }
 
+float highestThreshold(const string& errorMethod){
+    if(errorMethod == "variance"){
+        return 65025.0;
+    }
+    else if(errorMethod=="mad" || errorMethod =="mean absolute deviation"){
+        return 255.0;
+    }
+    else if(errorMethod=="mpd" || errorMethod =="max pixel difference"){
+        return 255.0;
+    }
+    else if(errorMethod=="entropy"){
+        return 8.0;
+    }
+    else{
+        return 1.0;
+    }
+}
+
+float lowestThreshold(const string& errorMethod){
+    if(errorMethod == "variance"){
+        return 0.0;
+    }
+    else if(errorMethod=="mad" || errorMethod =="mean absolute deviation"){
+        return 0.0;
+    }
+    else if(errorMethod=="mpd" || errorMethod =="max pixel difference"){
+        return 0.0;
+    }
+    else if(errorMethod=="entropy"){
+        return 0.0;
+    }
+    else{
+        return 0.0;
+    }
+}
+
 
 // Function to check if the file has a valid image extension
 bool hasValidExtension(const string& filename) {
@@ -74,7 +110,7 @@ bool processImage(const string &imagePath, vector<vector<RGB>> &image) {
 
 bool isValidErrorMethod(const string &errorMethod) {
     // List of valid error calculation methods
-    const vector<string> validMethods = {"variance", "mad", "mean absolute deviation", "max pixel difference", "entropy", "ssim"};
+    const vector<string> validMethods = {"variance", "mad", "mean absolute deviation", "max pixel difference", "mpd", "entropy", "ssim"};
     return find(validMethods.begin(), validMethods.end(), errorMethod) == validMethods.end();
 }
 
@@ -83,7 +119,7 @@ bool isValidThreshold(const string &errorMethod, float threshold) {
         return threshold > 0 && threshold <= 65025;
     } else if (errorMethod == "mad" || errorMethod == "mean absolute deviation") {
         return threshold > 0 && threshold <= 255;
-    } else if (errorMethod == "max pixel difference") {
+    } else if (errorMethod == "max pixel difference" || errorMethod == "mpd") {
         return threshold >= 0 && threshold <= 255;
     } else if (errorMethod == "entropy") {
         return threshold >= 0 && threshold <= 8;
@@ -232,12 +268,127 @@ void saveCompressedImage(const std::vector<std::vector<RGB>>& image, const std::
     // Write image as PNG
     if (!stbi_write_png(outputImagePath.c_str(), width, height, 3, data.data(), width * 3)) {
         std::cerr << "Failed to write image to: " << outputImagePath << std::endl;
-    } else {
-        std::cout << "Compressed image saved to: " << outputImagePath << std::endl;
     }
 }
 
-void outputHandler(const string &outputImagePath, const string &inputImagePath, QuadTree &quadtree, std::chrono::milliseconds duration){
+float standardPercentageCompression(
+    std::vector<std::vector<RGB>>& image,
+    const std::string& inputImagePath,
+    const std::string& outputImagePath,
+    const std::string& errorMethod,
+    int minBlockSize,
+    float targetCompression,
+    int& maxDepth,
+    int& nodeCount
+) {
+    float low = lowestThreshold(errorMethod);
+    float high = highestThreshold(errorMethod);
+    float bestThreshold = high;
+    float tolerance = 0.01f;
+    float precision = 0.001f; // berhenti jika selisih low dan high sudah sangat kecil
+
+    std::vector<std::vector<RGB>> processedImage;
+
+    while ((high - low) > precision) {
+        processedImage = image;
+        float mid = (low + high) / 2.0f;
+
+        QuadTree qt;
+        qt.buildTree(processedImage, mid, errorMethod, minBlockSize);
+        qt.reconstructImage(processedImage);
+
+        saveCompressedImage(processedImage, outputImagePath);
+
+        long long inputSize = getFileSize(inputImagePath);
+        long long outputSize = getFileSize(outputImagePath);
+        float achievedCompression = 1.0f - (float(outputSize) / float(inputSize));
+
+        float diff = std::abs(achievedCompression - targetCompression);
+
+        if (diff <= tolerance) {
+            bestThreshold = mid;
+            maxDepth = qt.maxDepth;
+            nodeCount = qt.nodeCount;
+            break;
+        }
+
+        if (achievedCompression > targetCompression) {
+            high = mid;
+        } else {
+            low = mid;
+        }
+
+        bestThreshold = mid;
+        maxDepth = qt.maxDepth;
+        nodeCount = qt.nodeCount;
+    }
+
+    return bestThreshold;
+}
+
+
+float ssimPercentageCompression(
+    std::vector<std::vector<RGB>>& image1,
+    const std::vector<std::vector<RGB>>& image2,
+    const std::string& inputImagePath,
+    const std::string& outputImagePath,
+    const std::string& errorMethod,
+    int minBlockSize,
+    float targetCompression,
+    int& maxDepth,
+    int& nodeCount
+) {
+    float low = 0.0f;
+    float high = 1.0f;
+    float bestThreshold = high;
+    float tolerance = 0.01f;
+    float precision = 0.001f;
+
+    std::vector<std::vector<RGB>> processedImage;
+
+    while ((high - low) > precision) {
+        processedImage = image1;
+        float mid = (low + high) / 2.0f;
+
+        QuadTree qt;
+        qt.buildTree(processedImage, image2, mid, errorMethod, minBlockSize);
+        qt.reconstructImage(processedImage);
+
+        saveCompressedImage(processedImage, outputImagePath);
+
+        long long inputSize = getFileSize(inputImagePath);
+        long long outputSize = getFileSize(outputImagePath);
+        float achievedCompression = 1.0f - float(outputSize) / float(inputSize);
+
+        float diff = std::abs(achievedCompression - targetCompression);
+
+        if (diff <= tolerance) {
+            bestThreshold = mid;
+            maxDepth = qt.maxDepth;
+            nodeCount = qt.nodeCount;
+            break;
+        }
+
+        // ✅ Koreksi arah pencarian
+        if (achievedCompression < targetCompression) {
+            high = mid; // masih terlalu kecil → kompresi belum cukup → turunkan threshold
+        } else {
+            low = mid; // kompresi terlalu tinggi → threshold bisa naikkan dikit
+        }
+
+        bestThreshold = mid;
+        maxDepth = qt.maxDepth;
+        nodeCount = qt.nodeCount;
+    }
+
+    return bestThreshold;
+}
+
+
+
+
+
+void outputHandler(const string &outputImagePath, const string &inputImagePath, int maxDepth, int nodeCount, std::chrono::milliseconds duration){
     long long inputSize = getFileSize(inputImagePath)/1024;
     long long outputSize = getFileSize(outputImagePath)/1024;
     cout << "\n\n=========================\n" << endl;
@@ -246,7 +397,7 @@ void outputHandler(const string &outputImagePath, const string &inputImagePath, 
     cout << "Input image size: " << inputSize << " KB" << endl;
     cout << "Output image size: " << outputSize << " KB" << endl;
     cout << "Compression ratio: " << (1.0 - (float(outputSize) / float(inputSize))) * 100 << "% reduction" << endl;
-    cout << "Max depth of quadtree: " << quadtree.maxDepth << endl;
-    cout << "Total nodes in quadtree: " << quadtree.nodeCount << endl << endl;
+    cout << "Max depth of quadtree: " << maxDepth << endl;
+    cout << "Total nodes in quadtree: " << nodeCount << endl << endl;
     cout << "=========================\n";
 }
